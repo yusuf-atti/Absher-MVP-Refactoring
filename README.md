@@ -1,1 +1,848 @@
-# ED
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة لوحة تحكم أبشر - ديمو الوضع الآمن</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* ======================= */
+        /* التنسيقات الأساسية والمتغيرات */
+        /* ======================= */
+        :root {
+            --absher-green: #008940;
+            --absher-dark-green: #0b5aa2;
+            --absher-light-green: #e9f5ee;
+            --absher-gray: #f7f7f7;
+            --absher-text: #333;
+            --absher-primary-blue: #004b91;
+        }
+
+        body {
+            font-family: "Tahoma", sans-serif;
+            margin: 0;
+            background-color: var(--absher-gray);
+            color: var(--absher-text);
+        }
+
+        /* HEADER (الشريط العلوي) */
+        .main-header {
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-absher {
+            width: 70px;
+            height: 70px;
+            background-color: var(--absher-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-links .link-item {
+            color: var(--absher-green);
+            text-decoration: none;
+            padding: 8px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            background-color: var(--absher-dark-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-pic i {
+            color: white;
+            line-height: 40px;
+            font-size: 20px;
+        }
+
+        /* INNERNAVIGATION (شريط التنقل الفرعي) */
+        .innerpage-navigation {
+            background-color: var(--absher-green);
+            padding: 0 30px;
+        }
+
+        .innerpage-navigation .nav-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 20px;
+        }
+
+        .innerpage-navigation .nav-item a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 0;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* MAIN LAYOUT */
+        .main-content-wrapper {
+            padding: 20px 30px;
+        }
+
+        .content-flex {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 20px;
+            max-width: 1300px;
+            margin: auto;
+        }
+
+        .sidebar-right {
+            width: 250px;
+            flex-shrink: 0;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            min-height: 300px;
+        }
+
+        /* SIDEBAR ITEMS */
+        .sidebar-right ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-right li {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--absher-text);
+            font-weight: 500;
+        }
+
+        .sidebar-right li:hover, .sidebar-right li.active {
+            background-color: var(--absher-light-green);
+            color: var(--absher-green);
+            border-right: 4px solid var(--absher-green);
+        }
+
+        .sidebar-right i {
+            margin-left: 10px;
+            color: var(--absher-green);
+        }
+
+        /* SEARCH BAR */
+        .search-row {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: white;
+            box-sizing: border-box;
+        }
+
+        /* SERVICES GRID */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .service-card {
+            text-align: center;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 30px 10px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s, transform 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .service-card:hover {
+            box-shadow: 0 4px 10px rgba(0, 137, 64, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .service-card-icon {
+            border: 1px solid var(--absher-light-green);
+            border-radius: 50%;
+            padding: 20px;
+            background-color: var(--absher-light-green);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .service-card-icon i {
+            font-size: 30px;
+            color: var(--absher-green);
+            margin: 0;
+        }
+
+        .service-card span {
+            display: block;
+            font-weight: bold;
+            color: var(--absher-text);
+        }
+
+        /* ======================= */
+        /* تنسيقات نموذج AbsherForm */
+        /* ======================= */
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-container h1 {
+            color: var(--absher-dark-green);
+            font-size: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: var(--absher-primary-blue);
+            color: white;
+            padding: 15px;
+            border: none;
+            font-size: 18px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #003e7a;
+        }
+
+        .btn-secondary, .btn-danger {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            flex-grow: 1;
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .alert {
+            background-color: #fff3cd;
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #ffecb5;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #8a6d3b;
+            line-height: 1;
+            padding: 5px;
+        }
+
+        .status-bar {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .status-unstable {
+            background-color: #ffecec;
+            color: #c62828;
+        }
+
+        .status-loading {
+            background-color: #f0f8ff;
+            color: #007bff;
+        }
+
+        .status-stable-hidden {
+            display: none;
+        }
+
+        .id-preview-container {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+
+        .id-preview {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .back-to-dashboard {
+            background: none;
+            border: none;
+            color: var(--absher-green);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* ======================= */
+        /* تنسيقات شاشة الدخول الوهمية */
+        /* ======================= */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--absher-gray);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: var(--absher-dark-green);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Hide/Show components */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>تسجيل الدخول - محاكاة</h2>
+            <div class="alert alert-info">
+                للدخول، استخدم اسم المستخدم: **1234567890** و كلمة المرور: **1111**
+            </div>
+            <input type="text" id="login-username" class="input" placeholder="اسم المستخدم" value="" />
+            <input type="password" id="login-password" class="input" placeholder="كلمة المرور" value="" />
+            <button class="btn" onclick="handleLogin()">تسجيل الدخول</button>
+            <div style="margin-top: 15px;">
+                <a href="#" onclick="showDashboard(); return false;">تخطي إلى لوحة التحكم (للتجربة المباشرة)</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-wrapper">
+        <header class="main-header">
+            <div class="logo-section">
+                <div class="logo-absher" alt="Absher">Absher</div>
+            </div>
+
+            <div class="top-links">
+                <a href="#" class="link-item" onclick="handleLogout(); return false;"><i class="fas fa-arrow-left"></i> تسجيل الخروج</a>
+                <a href="#" class="link-item"><i class="fas fa-language"></i> English</a>
+                <a href="#" class="link-item"><i class="fas fa-bell"></i> الاشعارات</a>
+            </div>
+
+            <div class="user-profile">
+                <div class="profile-pic"><i class="fas fa-user"></i></div>
+                <span id="header-user-name"></span>
+            </div>
+        </header>
+
+        <nav class="innerpage-navigation">
+            <div class="container-fluid">
+                <ul class="nav-list">
+                    <li class="nav-item active"><a href="#">الخدمات الإلكترونية</a></li>
+                    <li class="nav-item"><a href="#">التفاويض</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="main-content-wrapper">
+            <div class="content-flex">
+
+                <aside class="sidebar-right">
+                    <ul class="list-unstyled">
+                        <li class="sidebar-item active"><i class="fas fa-file-alt"></i> طلبات الخدمات</li>
+                        <li class="sidebar-item"><i class="fas fa-handshake"></i> التفاويض</li>
+                        <li class="sidebar-item"><i class="fas fa-money-check-alt"></i> المدفوعات الحكومية</li>
+                    </ul>
+                </aside>
+
+                <main class="content-left">
+                    <div class="search-row">
+                        <input type="text" placeholder="اكتب هنا للبحث" class="search-box">
+                    </div>
+
+                    <div id="root-dashboard">
+                        <div class="services-grid">
+                            <a class="service-card" href="#" onclick="openServiceForm('نموذج خدمة المواعيد'); return false;">
+                                <div class="service-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <span>مواعيد</span>
+                            </a>
+                            <a class="service-card" href="#" onclick="openServiceForm('نموذج خدمة العمالة'); return false;">
+                                <div class="service-card-icon"><i class="fas fa-users-cog"></i></div>
+                                <span>العمالة</span>
+                            </a>
+                            <a class="service-card" href="#" onclick="openServiceForm('نموذج خدمة أفراد الأسرة'); return false;">
+                                <div class="service-card-icon"><i class="fas fa-user-friends"></i></div>
+                                <span>أفراد الأسرة</span>
+                            </a>
+                            <a class="service-card" href="#" id="my-service-btn" onclick="openServiceForm('نموذج الوضع الآمن - تجديد الهوية'); return false;">
+                                <div class="service-card-icon" style="background-color: #ff9900; border-color: #ff9900;"><i class="fas fa-shield-alt" style="color:white;"></i></div>
+                                <span style="color: #ff9900; font-weight: bold;">خدمة الوضع الآمن (MVP)</span>
+                            </a>
+                            <a class="service-card" href="#" onclick="openServiceForm('نموذج خدمة المركبات'); return false;">
+                                <div class="service-card-icon"><i class="fas fa-car-side"></i></div>
+                                <span>المركبات</span>
+                            </a>
+                            <a class="service-card" href="#" onclick="openServiceForm('نموذج الخدمات العامة'); return false;">
+                                <div class="service-card-icon"><i class="fas fa-laptop-code"></i></div>
+                                <span>خدماتي</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="root-absher-form" class="hidden">
+                        <button class="back-to-dashboard" onclick="showDashboard()"><i class="fas fa-arrow-right"></i> العودة إلى الخدمات الرئيسية</button>
+                        <div class="form-container">
+                            <h1 id="form-title"></h1>
+                            <div id="form-root"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const FAKE_USER = {
+            id: "1234567890",
+            username: "1234567890",
+            password: "1111",
+            name: "يوسف عاتي",
+            dob: "1447/12/01",
+            birthplace: "جازان",
+            mobile: "0500666723"
+        };
+        const USER_STORAGE_KEY = 'absher_logged_in_user';
+
+        // State management for current view
+        const appState = {
+            currentView: 'login', // 'login', 'dashboard', 'form'
+            formTitle: '',
+            isFormVisible: false
+        };
+
+        function renderApp() {
+            const loginScreen = document.getElementById('login-screen');
+            const dashboardWrapper = document.getElementById('dashboard-wrapper');
+            const absherFormRoot = document.getElementById('root-absher-form');
+            const dashboardContent = document.getElementById('root-dashboard');
+            const formTitleElement = document.getElementById('form-title');
+
+            loginScreen.classList.toggle('hidden', appState.currentView !== 'login');
+            dashboardWrapper.classList.toggle('hidden', appState.currentView === 'login');
+
+            if (appState.currentView === 'dashboard') {
+                absherFormRoot.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+            } else if (appState.currentView === 'form') {
+                dashboardContent.classList.add('hidden');
+                absherFormRoot.classList.remove('hidden');
+                formTitleElement.textContent = appState.formTitle;
+            }
+        }
+
+        function showLoginScreen() {
+            appState.currentView = 'login';
+            renderApp();
+
+            const usernameField = document.getElementById('login-username');
+            const passwordField = document.getElementById('login-password');
+
+            if (usernameField && passwordField) {
+                usernameField.value = FAKE_USER.username;
+                passwordField.value = FAKE_USER.password;
+            }
+        }
+
+        function showDashboard() {
+            appState.currentView = 'dashboard';
+            appState.isFormVisible = false;
+            renderApp();
+
+            const user = JSON.parse(localStorage.getItem(USER_STORAGE_KEY));
+            if (user) {
+                document.getElementById('header-user-name').textContent = `مرحباً، ${user.name.split(' ')[0]}`;
+            }
+        }
+
+        function openServiceForm(serviceName) {
+            appState.currentView = 'form';
+            appState.formTitle = serviceName;
+            appState.isFormVisible = true;
+            renderApp();
+            ReactDOM.createRoot(document.getElementById('form-root')).render(<AbsherForm />);
+        }
+
+        function handleLogin() {
+            const inputUser = document.getElementById('login-username').value;
+            const inputPass = document.getElementById('login-password').value;
+
+            if (inputUser === FAKE_USER.username && inputPass === FAKE_USER.password) {
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(FAKE_USER));
+                alert('تم تسجيل الدخول بنجاح! مرحباً بك.');
+                showDashboard();
+            } else {
+                alert('خطأ في اسم المستخدم أو كلمة المرور.');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(USER_STORAGE_KEY);
+            alert('تم تسجيل الخروج بنجاح. سيتم توجيهك إلى شاشة الدخول.');
+            showLoginScreen();
+        }
+
+        function checkLoginStatus() {
+            const loggedInUser = localStorage.getItem(USER_STORAGE_KEY);
+            if (loggedInUser) {
+                showDashboard();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
+            renderApp(); // Initial render based on login status
+        });
+    </script>
+
+    <script type="text/babel">
+        function AbsherForm() {
+            const [idNumber, setIdNumber] = React.useState("");
+            const [service, setService] = React.useState("");
+            const [notes, setNotes] = React.useState("");
+            const [latency, setLatency] = React.useState("يتم الفحص...");
+            const [failCount, setFailCount] = React.useState(0);
+            const [alertVisible, setAlertVisible] = React.useState(false);
+            const [idFrontPreview, setIdFrontPreview] = React.useState(null);
+            const [idBackPreview, setIdBackPreview] = React.useState(null);
+            const [isChecking, setIsChecking] = React.useState(true);
+
+            const closeAlert = () => {
+                setAlertVisible(false);
+            };
+
+            const checkConnection = async () => {
+                setIsChecking(true);
+                const start = Date.now();
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 2500);
+                    // Using a reliable endpoint for testing connection
+                    await fetch("https://jsonplaceholder.typicode.com/posts/1", { signal: controller.signal });
+                    clearTimeout(timeout);
+                    const ping = Date.now() - start;
+                    setLatency(`${ping}ms`);
+                    setFailCount(0);
+                    setAlertVisible(false); // Hide alert if connection is good
+                } catch (e) {
+                    setFailCount(prev => {
+                        const newCount = prev + 1;
+                        if (newCount >= 3) {
+                            setAlertVisible(true); // Show alert after 3 consecutive failures
+                        }
+                        return newCount;
+                    });
+                    setLatency("ضعيف / غير مستقر");
+                } finally {
+                    setIsChecking(false);
+                }
+            };
+
+            React.useEffect(() => {
+                checkConnection();
+                const interval = setInterval(checkConnection, 6000); // Re-check every 6 seconds
+                return () => clearInterval(interval); // Cleanup on unmount
+            }, []);
+
+            const loadDraft = () => {
+                const draft = localStorage.getItem("absher_draft");
+                if (draft) {
+                    try {
+                        const data = JSON.parse(draft);
+                        setIdNumber(data.idNumber || "");
+                        setService(data.service || "");
+                        setNotes(data.notes || "");
+                        if (data.idFrontPreview) setIdFrontPreview(data.idFrontPreview);
+                        if (data.idBackPreview) setIdBackPreview(data.idBackPreview);
+                        // Optionally show an alert that draft was loaded
+                        // alert("تم استرجاع بيانات طلب سابق محفوظ (مسودة).");
+                    } catch (e) {
+                        console.error("Error loading draft:", e);
+                    }
+                }
+            };
+
+            const saveDraft = (e) => {
+                if (e) e.preventDefault(); // Prevent default form submission if called from form
+                const formData = {
+                    idNumber: idNumber,
+                    service: service,
+                    notes: notes,
+                    idFrontPreview: idFrontPreview,
+                    idBackPreview: idBackPreview,
+                };
+                localStorage.setItem("absher_draft", JSON.stringify(formData));
+                alert("تم حفظ المسودة بنجاح.");
+            };
+
+            const clearDraft = () => {
+                localStorage.removeItem("absher_draft");
+                setIdNumber("");
+                setService("");
+                setNotes("");
+                setIdFrontPreview(null);
+                setIdBackPreview(null);
+                setAlertVisible(false); // Reset alert visibility
+                alert("تم مسح المسودة المخزّنة ومسح حقول النموذج.");
+            }
+
+            React.useEffect(() => {
+                loadDraft(); // Load draft when the component mounts
+            }, []);
+
+            const handleFileUpload = (e, setPreview) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setPreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const submitForm = (e) => {
+                e.preventDefault();
+
+                // Basic validation
+                if (idNumber.length !== 10) {
+                    alert("خطأ: يجب أن يتكون رقم الهوية من 10 خانات.");
+                    return;
+                }
+                if (!/^\d+$/.test(idNumber)) {
+                    alert("خطأ: يجب أن يحتوي رقم الهوية على أرقام فقط، ولا يقبل حروف أو رموز.");
+                    return;
+                }
+
+                // Handle unstable connection scenario
+                if (alertVisible && failCount >= 3) {
+                    saveDraft(); // Save as draft
+                    alert("الاتصال ضعيف جداً! تم حفظ بياناتك (المسودة). سيتم نقلك لتأكيد الإرسال والحصول على رقم فاتورة سداد لاحقاً.");
+                    // Optionally, navigate to a confirmation page or show a different UI
+                    return;
+                }
+
+                // Normal submission
+                localStorage.removeItem("absher_draft"); // Clear draft on successful submission
+                alert(`تم إرسال الطلب بنجاح لرقم الهوية: ${idNumber} في الوضع الطبيعي.`);
+                // Optionally, navigate back to dashboard or show success message
+                showDashboard(); // Navigate back to dashboard after successful submission
+            };
+
+            let statusClass;
+            let statusMessage;
+
+            if (isChecking) {
+                statusClass = "status-loading";
+                statusMessage = "يتم فحص حالة الاتصال...";
+            } else if (alertVisible) {
+                statusClass = "status-unstable";
+                statusMessage = `حالة الاتصال: ضعيف / غير مستقر (${latency})`;
+            } else {
+                // If not checking and not unstable, it's stable
+                statusClass = "status-stable-hidden"; // Hide if stable and not actively checking
+  statusMessage = `حالة الاتصال: مستقر (${latency})`;
+            }
+
+            return (
+                <div dir="rtl">
+                    <div className={`status-bar ${statusClass}`}>
+                        <b>{statusMessage}</b>
+                    </div>
+
+                    {alertVisible && (
+                        <div className="alert">
+                            <span className="alert-close" onClick={closeAlert}>&times;</span>
+                            ⚠️ **ضعف اتصال / انقطاع وشيك!** يوصى بشدة **حفظ المسودة** للمتابعة في الوضع الآمن.
+                        </div>
+                    )}
+
+                    <form onSubmit={submitForm}>
+                        <label htmlFor="idNumber">🆔 رقم الهوية / الإقامة</label>
+                        <input
+                            id="idNumber"
+                            className="input"
+                            type="tel"
+                            inputMode="numeric"
+                            maxLength="10"
+                            placeholder="أدخل رقم الهوية"
+                            value={idNumber}
+                            onChange={(e) => setIdNumber(e.target.value)}
+                            required
+                        />
+
+                        <label htmlFor="service">⚙️ نوع الخدمة المطلوبة</label>
+                        <select
+                            id="service"
+                            className="input"
+                            value={service}
+                            onChange={(e) => setService(e.target.value)}
+                        >
+                            <option value="">اختر الخدمة</option>
+                            <option>تجديد الهوية الوطنية</option>
+                            <option>تجديد جواز السفر</option>
+                            <option>إصدار الإقامة</option>
+                            <option>نقل ملكية مركبة</option>
+                        </select>
+
+                        <label htmlFor="notes">📝 ملاحظات إضافية</label>
+                        <textarea
+                            id="notes"
+                            rows="4"
+                            className="input"
+                            placeholder="اكتب تفاصيل إضافية (اختياري)"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                        ></textarea>
+
+                        <label>⬆️ رفع صورة الهوية (الأمامية)</label>
+                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, setIdFrontPreview)} />
+                        {idFrontPreview && (
+                            <div className="id-preview-container">
+                                <img src={idFrontPreview} className="id-preview" alt="معاينة الهوية الأمامية" />
+                            </div>
+                        )}
+
+                        <label>⬆️ رفع صورة الهوية (الخلفية)</label>
+                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, setIdBackPreview)} />
+                        {idBackPreview && (
+                            <div className="id-preview-container">
+                                <img src={idBackPreview} className="id-preview" alt="معاينة الهوية الخلفية" />
+                            </div>
+                        )}
+
+                        <button className="btn" type="submit" disabled={isChecking}>
+                            {alertVisible ? "🛡️ إرسال الطلب في الوضع الآمن" : "✅ إرسال الطلب"}
+                        </button>
+
+                        <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                            <button type="button" className="btn-secondary" onClick={saveDraft} disabled={isChecking}>
+                                💾 حفظ مسودة يدوياً
+                            </button>
+                            <button type="button" className="btn-danger" onClick={clearDraft} disabled={isChecking}>
+                                🗑️ مسح المسودة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            );
+        }
+    </script>
+</body>
+</html>
